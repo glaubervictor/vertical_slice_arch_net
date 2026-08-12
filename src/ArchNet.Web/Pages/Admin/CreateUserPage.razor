@@ -1,0 +1,123 @@
+@page "/admin/users/new"
+@attribute [Authorize(Roles = "Admin")]
+@inject IArchNetClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Novo Usuário — ArchNet</PageTitle>
+
+<div class="flex flex-col gap-6 max-w-lg">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Novo Usuário</h1>
+        <p class="text-muted-foreground text-sm">Preencha os dados para criar um novo usuário.</p>
+    </div>
+
+    <BbCard>
+        <BbCardContent Class="pt-6">
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <BbAlert Variant="AlertVariant.Danger" Class="mb-4">
+                    <BbAlertTitle>Erro</BbAlertTitle>
+                    <BbAlertDescription>@_errorMessage</BbAlertDescription>
+                </BbAlert>
+            }
+
+            <div class="flex flex-col gap-4">
+                <BbFormFieldInput TValue="string"
+                                  @bind-Value="_name"
+                                  Label="Nome"
+                                  Placeholder="Nome completo"
+                                  Required="true" />
+
+                <BbFormFieldInput TValue="string"
+                                  @bind-Value="_login"
+                                  Label="Login"
+                                  Placeholder="usuario.login"
+                                  Required="true" />
+
+                <BbFormFieldInput TValue="string"
+                                  @bind-Value="_password"
+                                  Label="Senha"
+                                  Type="InputType.Password"
+                                  Placeholder="••••••••"
+                                  Required="true" />
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium">Perfil</label>
+                    <BbSelect TValue="string" @bind-Value="_role">
+                        <BbSelectTrigger>
+                            <BbSelectValue Placeholder="Selecione um perfil" />
+                        </BbSelectTrigger>
+                        <BbSelectContent>
+                            <BbSelectItem Value="@("Admin")">Administrador</BbSelectItem>
+                            <BbSelectItem Value="@("Manager")">Gerente</BbSelectItem>
+                            <BbSelectItem Value="@("User")">Usuário</BbSelectItem>
+                        </BbSelectContent>
+                    </BbSelect>
+                </div>
+            </div>
+        </BbCardContent>
+        <BbCardFooter Class="gap-2">
+            <BbButton Variant="ButtonVariant.Outline" Href="/admin/users">
+                Cancelar
+            </BbButton>
+            <BbButton Type="ButtonType.Button"
+                      Loading="_loading"
+                      LoadingText="Criando..."
+                      OnClick="HandleCreate">
+                Criar Usuário
+            </BbButton>
+        </BbCardFooter>
+    </BbCard>
+</div>
+
+@code {
+    private string _name = string.Empty;
+    private string _login = string.Empty;
+    private string _password = string.Empty;
+    private string _role = "User";
+    private bool _loading;
+    private string? _errorMessage;
+
+    private async Task HandleCreate()
+    {
+        if (string.IsNullOrWhiteSpace(_name) || string.IsNullOrWhiteSpace(_login)
+            || string.IsNullOrWhiteSpace(_password))
+        {
+            _errorMessage = "Preencha todos os campos obrigatórios.";
+            return;
+        }
+
+        _loading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var roleEnum = Enum.Parse<ArchNet.Web.GraphQL.UserRole>(_role);
+            var result = await Client.CreateUser.ExecuteAsync(
+                new CreateUserInput
+                {
+                    Name = _name,
+                    Login = _login,
+                    Password = _password,
+                    Role = roleEnum
+                });
+
+            if (result.IsErrorResult())
+            {
+                _errorMessage = result.Errors.FirstOrDefault()?.Message
+                    ?? "Erro ao criar usuário.";
+                return;
+            }
+
+            Navigation.NavigateTo("/admin/users");
+        }
+        catch
+        {
+            _errorMessage = "Não foi possível criar o usuário.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

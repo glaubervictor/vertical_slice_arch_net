@@ -1,0 +1,17 @@
+@inherits LayoutComponentBase
+
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+    <div class="w-full max-w-md">
+        <div class="flex justify-center mb-8">
+            <div class="flex items-center gap-3">
+                <div class="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-lg">
+                    A
+                </div>
+                <span class="text-2xl font-semibold tracking-tight">ArchNet</span>
+            </div>
+        </div>
+        @Body
+    </div>
+</div>
+<!-- Required for portal-based components -->
+<BbPortalHost />

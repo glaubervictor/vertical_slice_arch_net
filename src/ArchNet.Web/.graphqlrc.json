@@ -1,0 +1,16 @@
+{
+  "schema": "GraphQL/schema.graphql",
+  "documents": "GraphQL/Operations/**/*.graphql",
+  "extensions": {
+    "strawberryShake": {
+      "name": "ArchNetClient",
+      "namespace": "ArchNet.Web.GraphQL",
+      "url": "http://localhost:5000/graphql",
+      "dependencyInjection": true,
+      "records": {
+        "inputs": true,
+        "entities": true
+      }
+    }
+  }
+}

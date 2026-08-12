@@ -1,0 +1,167 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@inject IArchNetClient Client
+@inject NavigationManager Navigation
+
+<PageTitle>Usuários — ArchNet</PageTitle>
+
+<div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-tight">Usuários</h1>
+            <p class="text-muted-foreground text-sm">Gerencie os usuários da plataforma.</p>
+        </div>
+        <BbButton Href="/admin/users/new">
+            <LucideIcon Name="user-plus" Class="size-4 mr-2" />
+            Novo Usuário
+        </BbButton>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <BbAlert Variant="AlertVariant.Danger">
+            <BbAlertTitle>Erro</BbAlertTitle>
+            <BbAlertDescription>@_errorMessage</BbAlertDescription>
+        </BbAlert>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <BbAlert>
+            <BbAlertTitle>Sucesso</BbAlertTitle>
+            <BbAlertDescription>@_successMessage</BbAlertDescription>
+        </BbAlert>
+    }
+
+    <BbDataTable TData="UserRow"
+                 Data="_users"
+                 IsLoading="_loading"
+                 ShowToolbar="true"
+                 ShowPagination="true"
+                 InitialPageSize="10">
+        <Columns>
+            <BbDataTableColumn TData="UserRow" TValue="string"
+                               Property="u => u.Name"
+                               Header="Nome" Sortable="true" Filterable="true" />
+            <BbDataTableColumn TData="UserRow" TValue="string"
+                               Property="u => u.Login"
+                               Header="Login" Sortable="true" Filterable="true" />
+            <BbDataTableColumn TData="UserRow" TValue="string"
+                               Property="u => u.Role"
+                               Header="Perfil" Sortable="true" />
+            <BbDataTableColumn TData="UserRow" TValue="string"
+                               Header="Ações" Width="180px">
+                <CellTemplate Context="user">
+                    <div class="flex items-center gap-2">
+                        <BbButton Size="ButtonSize.Small"
+                                  Variant="ButtonVariant.Outline"
+                                  OnClick="@(() => Navigation.NavigateTo($"/admin/users/{user.Id}/change-password"))">
+                            <LucideIcon Name="key" Class="size-3 mr-1" />
+                            Senha
+                        </BbButton>
+
+                        <BbAlertDialog>
+                            <BbAlertDialogTrigger>
+                                <BbButton Size="ButtonSize.Small"
+                                          Variant="ButtonVariant.Destructive">
+                                    <LucideIcon Name="trash-2" Class="size-3 mr-1" />
+                                    Excluir
+                                </BbButton>
+                            </BbAlertDialogTrigger>
+                            <BbAlertDialogContent>
+                                <BbAlertDialogHeader>
+                                    <BbAlertDialogTitle>Excluir usuário</BbAlertDialogTitle>
+                                    <BbAlertDialogDescription>
+                                        Tem certeza que deseja excluir o usuário <strong>@user.Name</strong>?
+                                        Esta ação não pode ser desfeita.
+                                    </BbAlertDialogDescription>
+                                </BbAlertDialogHeader>
+                                <BbAlertDialogFooter>
+                                    <BbAlertDialogCancel>
+                                        <BbButton Variant="ButtonVariant.Outline">Cancelar</BbButton>
+                                    </BbAlertDialogCancel>
+                                    <BbAlertDialogAction>
+                                        <BbButton Variant="ButtonVariant.Destructive"
+                                                  OnClick="() => DeleteUser(user.Id, user.Name)">
+                                            Excluir
+                                        </BbButton>
+                                    </BbAlertDialogAction>
+                                </BbAlertDialogFooter>
+                            </BbAlertDialogContent>
+                        </BbAlertDialog>
+                    </div>
+                </CellTemplate>
+            </BbDataTableColumn>
+        </Columns>
+    </BbDataTable>
+</div>
+
+@code {
+    private List<UserRow> _users = [];
+    private bool _loading = true;
+    private string? _errorMessage;
+    private string? _successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        _loading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await Client.GetUsers.ExecuteAsync(page: 1, pageSize: 500);
+
+            if (result.IsErrorResult() || result.Data?.Users?.Users is null)
+            {
+                _errorMessage = result.Errors.FirstOrDefault()?.Message
+                    ?? "Erro ao carregar usuários.";
+                return;
+            }
+
+            _users = result.Data.Users.Users.Items?
+                .Where(i => i is not null)
+                .Select(i => new UserRow(i!.Id, i.Name, i.Login, i.Role.ToString()))
+                .ToList() ?? [];
+        }
+        catch
+        {
+            _errorMessage = "Não foi possível conectar ao servidor.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task DeleteUser(string id, string name)
+    {
+        _errorMessage = null;
+        _successMessage = null;
+
+        try
+        {
+            var result = await Client.DeleteUser.ExecuteAsync(id);
+
+            if (result.IsErrorResult())
+            {
+                _errorMessage = result.Errors.FirstOrDefault()?.Message
+                    ?? "Erro ao excluir usuário.";
+                return;
+            }
+
+            _successMessage = $"Usuário \"{name}\" excluído com sucesso.";
+            await LoadUsers();
+        }
+        catch
+        {
+            _errorMessage = "Não foi possível excluir o usuário.";
+        }
+    }
+
+    private record UserRow(string Id, string Name, string Login, string Role);
+}

@@ -1,0 +1,93 @@
+@page "/login"
+@page "/"
+@layout Layout.AuthLayout
+@inject IArchNetClient Client
+@inject ITokenService TokenService
+@inject JwtAuthStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+<PageTitle>Login — ArchNet</PageTitle>
+
+<BbCard>
+    <BbCardHeader>
+        <BbCardTitle>Entrar na plataforma</BbCardTitle>
+        <BbCardDescription>Informe suas credenciais para acessar o painel.</BbCardDescription>
+    </BbCardHeader>
+    <BbCardContent>
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <BbAlert Variant="AlertVariant.Danger" Class="mb-4">
+                <BbAlertTitle>Erro</BbAlertTitle>
+                <BbAlertDescription>@_errorMessage</BbAlertDescription>
+            </BbAlert>
+        }
+
+        <div class="flex flex-col gap-4">
+            <BbFormFieldInput TValue="string"
+                              @bind-Value="_login"
+                              Label="Login"
+                              Placeholder="seu.login"
+                              Required="true"/>
+
+            <BbFormFieldInput TValue="string"
+                              @bind-Value="_password"
+                              Label="Senha"
+                              Type="InputType.Password"
+                              Placeholder="••••••••"
+                              Required="true"/>
+        </div>
+    </BbCardContent>
+    <BbCardFooter>
+        <BbButton Type="ButtonType.Button"
+                  Loading="_loading"
+                  LoadingText="Entrando..."
+                  OnClick="HandleLogin"
+                  Class="w-full">
+            Entrar
+        </BbButton>
+    </BbCardFooter>
+</BbCard>
+
+@code {
+    private string _login = string.Empty;
+    private string _password = string.Empty;
+    private bool _loading;
+    private string? _errorMessage;
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(_login) || string.IsNullOrWhiteSpace(_password))
+        {
+            _errorMessage = "Preencha o login e a senha.";
+            return;
+        }
+
+        _loading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await Client.LoginUser.ExecuteAsync(
+                new LoginUserInput { Login = _login, Password = _password });
+
+            if (result.IsErrorResult() || result.Data?.Users?.Login is null)
+            {
+                _errorMessage = result.Errors.FirstOrDefault()?.Message ?? "Credenciais inválidas.";
+                return;
+            }
+
+            var token = result.Data.Users.Login.Token;
+            await TokenService.SetTokenAsync(token);
+            AuthProvider.NotifyUserAuthenticated(token);
+            Navigation.NavigateTo("/admin/users");
+        }
+        catch
+        {
+            _errorMessage = "Não foi possível conectar ao servidor. Tente novamente.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

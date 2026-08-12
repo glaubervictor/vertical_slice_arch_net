@@ -1,0 +1,85 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  users: UsersQuery!
+}
+
+type UsersQuery {
+  user(id: String!): UserType
+  users(page: Int!, pageSize: Int!): ListUsersResponseType
+  loggedUser: LoggedUserResponseType
+}
+
+type Mutation {
+  users: UsersMutation!
+}
+
+type UsersMutation {
+  login(input: LoginUserInput!): LoginUserResponseType
+  createUser(input: CreateUserInput!): UserType
+  updateUser(input: UpdateUserInput!): UserType
+  deleteUser(id: String!): DeleteUserResponseType
+  changePassword(input: ChangePasswordInput!): UserType
+}
+
+type UserType {
+  id: String!
+  name: String!
+  login: String!
+  role: UserRole!
+}
+
+type LoginUserResponseType {
+  token: String!
+  userId: String!
+  name: String!
+  role: UserRole!
+}
+
+type ListUsersResponseType {
+  total: Int!
+  items: [UserType]
+}
+
+type DeleteUserResponseType {
+  id: String!
+}
+
+type LoggedUserResponseType {
+  id: String!
+  name: String!
+  role: UserRole!
+}
+
+enum UserRole {
+  Admin
+  Manager
+  User
+}
+
+input LoginUserInput {
+  login: String!
+  password: String!
+}
+
+input CreateUserInput {
+  name: String!
+  login: String!
+  password: String!
+  role: UserRole!
+}
+
+input UpdateUserInput {
+  id: String!
+  name: String!
+  role: UserRole!
+}
+
+input ChangePasswordInput {
+  userId: String!
+  currentPassword: String!
+  newPassword: String!
+}

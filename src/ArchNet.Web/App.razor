@@ -1,0 +1,27 @@
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    @if (!context.User.Identity!.IsAuthenticated)
+                    {
+                        <RedirectToLogin/>
+                    }
+                    else
+                    {
+                        <p class="text-destructive p-4">Você não tem permissão para acessar esta página.</p>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <PageTitle>Página não encontrada</PageTitle>
+            <LayoutView Layout="typeof(Layout.AuthLayout)">
+                <div class="flex flex-col items-center justify-center gap-4 p-8">
+                    <p class="text-muted-foreground text-lg">Página não encontrada.</p>
+                    <BbButton Href="/">Voltar ao início</BbButton>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

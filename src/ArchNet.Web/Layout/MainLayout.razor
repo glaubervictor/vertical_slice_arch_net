@@ -1,0 +1,84 @@
+@inherits LayoutComponentBase
+@inject ITokenService TokenService
+@inject JwtAuthStateProvider AuthProvider
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<BbSidebarProvider DefaultOpen="true" Variant="SidebarVariant.Sidebar" HeightClass="min-h-screen">
+    <BbSidebar>
+        <BbSidebarHeader>
+            <BbSidebarHeaderContent>
+                <div class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
+                    A
+                </div>
+                <BbSidebarHeaderInfo>
+                    <span class="truncate font-semibold">ArchNet</span>
+                    <span class="truncate text-xs text-muted-foreground">QIATech</span>
+                </BbSidebarHeaderInfo>
+            </BbSidebarHeaderContent>
+        </BbSidebarHeader>
+
+        <BbSidebarContent>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <BbSidebarGroup>
+                        <BbSidebarGroupLabel>Administração</BbSidebarGroupLabel>
+                        <BbSidebarGroupContent>
+                            <BbSidebarMenu>
+                                <BbSidebarMenuItem>
+                                    <BbSidebarMenuButton Href="/admin/users" Tooltip="Usuários">
+                                        <LucideIcon Name="users" />
+                                        <span>Usuários</span>
+                                    </BbSidebarMenuButton>
+                                </BbSidebarMenuItem>
+                                <BbSidebarMenuItem>
+                                    <BbSidebarMenuButton Href="/admin/users/new" Tooltip="Novo Usuário">
+                                        <LucideIcon Name="user-plus" />
+                                        <span>Novo Usuário</span>
+                                    </BbSidebarMenuButton>
+                                </BbSidebarMenuItem>
+                            </BbSidebarMenu>
+                        </BbSidebarGroupContent>
+                    </BbSidebarGroup>
+                </Authorized>
+            </AuthorizeView>
+        </BbSidebarContent>
+
+        <BbSidebarFooter>
+            <BbSidebarMenu>
+                <BbSidebarMenuItem>
+                    <AuthorizeView>
+                        <Authorized>
+                            <BbSidebarMenuButton Tooltip="Sair" OnClick="HandleLogout">
+                                <LucideIcon Name="log-out" />
+                                <span>Sair (@context.User.Identity?.Name)</span>
+                            </BbSidebarMenuButton>
+                        </Authorized>
+                    </AuthorizeView>
+                </BbSidebarMenuItem>
+            </BbSidebarMenu>
+        </BbSidebarFooter>
+
+        <BbSidebarRail />
+    </BbSidebar>
+
+    <BbSidebarInset>
+        <header class="flex h-14 items-center gap-2 border-b px-4 bg-background">
+            <BbSidebarTrigger />
+        </header>
+        <main class="flex-1 p-6">
+            @Body
+        </main>
+    </BbSidebarInset>
+</BbSidebarProvider>
+<!-- Required for portal-based components -->
+<BbPortalHost />
+
+@code {
+    private async Task HandleLogout()
+    {
+        await TokenService.ClearTokenAsync();
+        AuthProvider.NotifyUserLoggedOut();
+        Navigation.NavigateTo("/login");
+    }
+}

@@ -1,0 +1,46 @@
+# Build output
+bin/
+obj/
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider / JetBrains
+#.idea/
+#*.DotSettings.user
+
+# Visual Studio
+.vs/
+*.rsuser
+
+# VS Code
+.vscode/
+
+# Cursor
+.cursor/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Logs & temp
+*.log
+*.tmp
+*.temp
+
+# Secrets & environment
+*.env
+.env.*
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db

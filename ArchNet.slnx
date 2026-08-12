@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="src/ArchNet.Common/ArchNet.Common.csproj" />
+  <Project Path="src/ArchNet.Domain/ArchNet.Domain.csproj" />
+  <Project Path="src/ArchNet.Infrastructure/ArchNet.Infrastructure.csproj" />
+  <Project Path="src/ArchNet.Features/ArchNet.Features.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="tests/ArchNet.IntegrationTests/ArchNet.IntegrationTests.csproj" />
+    <Project Path="tests/ArchNet.UnitTests/ArchNet.UnitTests.csproj" />
+  </Folder>
+  <Project Path="src/ArchNet.Api/ArchNet.Api.csproj" />
+  <Project Path="src/ArchNet.Web/ArchNet.Web.csproj" />
+</Solution>

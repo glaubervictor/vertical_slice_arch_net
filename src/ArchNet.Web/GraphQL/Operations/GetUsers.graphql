@@ -1,0 +1,13 @@
+query GetUsers($page: Int!, $pageSize: Int!) {
+  users {
+    users(page: $page, pageSize: $pageSize) {
+      total
+      items {
+        id
+        name
+        login
+        role
+      }
+    }
+  }
+}
