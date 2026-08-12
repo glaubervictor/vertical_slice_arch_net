@@ -1,46 +1,46 @@
 # ArchNet
 
-API GraphQL para gestão de usuários e recursos da plataforma QIATech, construída com **Vertical Slice Architecture** em **.NET 10**.
+GraphQL API for managing users and resources of the QIATech platform, built with **Vertical Slice Architecture** on **.NET 10**.
 
-## Tecnologias
+## Tech Stack
 
-| Área | Biblioteca / Versão |
+| Area | Library / Version |
 |---|---|
 | Runtime | .NET 10, ASP.NET Core |
 | GraphQL | graphql-dotnet `8.8.4` + GraphiQL |
 | CQRS / Mediator | Mediator (source-generated) `3.0.2` |
-| Validação | FluentValidation `11.12.0` |
+| Validation | FluentValidation `11.12.0` |
 | ORM | Entity Framework Core `10.0.5` + Npgsql `10.0.1` |
-| Banco de dados | PostgreSQL |
+| Database | PostgreSQL |
 | IDs | CUID2 via `cuid.net` `7.0.0` |
-| Autenticação | JWT Bearer `10.0.0` |
-| Testes | xUnit + FluentAssertions + Testcontainers |
+| Authentication | JWT Bearer `10.0.0` |
+| Testing | xUnit + FluentAssertions + Testcontainers |
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 arch_net/
 ├── src/
-│   ├── ArchNet.Api/            # Host ASP.NET Core — AppSchema, RootQuery/Mutation, middleware, Program.cs
-│   ├── ArchNet.Features/       # Todos os slices verticais (área principal de desenvolvimento)
+│   ├── ArchNet.Api/            # ASP.NET Core host — AppSchema, RootQuery/Mutation, middleware, Program.cs
+│   ├── ArchNet.Features/       # All vertical slices (main development area)
 │   │   └── Users/
 │   │       ├── CreateUser/
 │   │       ├── GetUser/
 │   │       ├── ListUsers/
 │   │       ├── UpdateUser/
 │   │       ├── DeleteUser/
-│   │       └── Shared/         # ObjectGraphType compartilhado dentro do feature Users
-│   ├── ArchNet.Domain/         # Entidades e enums compartilhados entre features
-│   ├── ArchNet.Common/         # Result pattern, EntityBase e utilitários cross-cutting
-│   └── ArchNet.Infrastructure/ # EF Core DbContext, configurações de entidades, migrations
+│   │       └── Shared/         # ObjectGraphType shared within the Users feature
+│   ├── ArchNet.Domain/         # Entities and enums shared across features
+│   ├── ArchNet.Common/         # Result pattern, EntityBase and cross-cutting utilities
+│   └── ArchNet.Infrastructure/ # EF Core DbContext, entity configurations, migrations
 └── tests/
-    ├── UnitTests/              # Testes de domínio e handlers (espelha src/Features/)
-    └── IntegrationTests/       # Testes de schema GraphQL e banco de dados
+    ├── UnitTests/              # Domain and handler tests (mirrors src/Features/)
+    └── IntegrationTests/       # GraphQL schema and database tests
 ```
 
-### Estrutura de um slice
+### Slice structure
 
-Cada operação vive em sua própria pasta autocontida:
+Each operation lives in its own self-contained folder:
 
 ```
 src/ArchNet.Features/Users/CreateUser/
@@ -51,37 +51,37 @@ src/ArchNet.Features/Users/CreateUser/
 └── CreateUserMutation.cs
 ```
 
-## Decisões de Arquitetura
+## Architecture Decisions
 
-- **Vertical Slice Architecture** — o código é organizado por feature/caso de uso, não por camada técnica. Slices são independentes e não se importam entre si.
-- **Sem Repository Pattern** — handlers injetam `AppDbContext` diretamente.
-- **Sem AutoMapper** — mapeamentos são explícitos dentro de cada handler.
-- **Result Pattern** — erros de negócio são retornados como `Result<T>`; exceções nunca são usadas para controle de fluxo.
-- **IDs com CUID2** — todos os PKs/FKs de entidades usam CUID2 (`string`, `varchar(24)` no PostgreSQL), gerados na camada de aplicação, nunca pelo banco.
-- **Gerenciamento Central de Pacotes** — todas as versões NuGet são declaradas em `Directory.Packages.props`; os arquivos `.csproj` referenciam pacotes sem o atributo `Version`.
+- **Vertical Slice Architecture** — code is organized by feature/use case, not by technical layer. Slices are independent and never import each other.
+- **No Repository Pattern** — handlers inject `AppDbContext` directly.
+- **No AutoMapper** — mappings are explicit inside each handler.
+- **Result Pattern** — business errors are returned as `Result<T>`; exceptions are never used for flow control.
+- **CUID2 IDs** — all entity PKs/FKs use CUID2 (`string`, `varchar(24)` in PostgreSQL), generated in the application layer, never by the database.
+- **Central Package Management** — all NuGet versions are declared in `Directory.Packages.props`; `.csproj` files reference packages without the `Version` attribute.
 
-## Pré-requisitos
+## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- PostgreSQL (ou Docker para executá-lo)
-- Ferramenta CLI `dotnet-ef`:
+- PostgreSQL (or Docker to run it)
+- `dotnet-ef` CLI tool:
 
 ```bash
 dotnet tool install --global dotnet-ef
 ```
 
-## Primeiros Passos
+## Getting Started
 
-1. **Clone o repositório**
+1. **Clone the repository**
 
 ```bash
 git clone <repo-url>
 cd arch_net
 ```
 
-2. **Configure a connection string**
+2. **Configure the connection string**
 
-Defina a variável de ambiente `ConnectionStrings__DefaultConnection` ou atualize o `appsettings.json` em `src/ArchNet.Api`:
+Set the `ConnectionStrings__DefaultConnection` environment variable or update `appsettings.json` in `src/ArchNet.Api`:
 
 ```json
 {
@@ -91,38 +91,38 @@ Defina a variável de ambiente `ConnectionStrings__DefaultConnection` ou atualiz
 }
 ```
 
-3. **Aplique as migrations**
+3. **Apply the migrations**
 
 ```bash
 dotnet ef database update -p src/ArchNet.Infrastructure -s src/ArchNet.Api
 ```
 
-4. **Execute a API**
+4. **Run the API**
 
 ```bash
 dotnet run --project src/ArchNet.Api
 ```
 
-O playground GraphiQL estará disponível em `http://localhost:<porta>/ui/graphiql`.
+The GraphiQL playground will be available at `http://localhost:<port>/ui/graphiql`.
 
-## Comandos Úteis
+## Useful Commands
 
-| Tarefa | Comando |
+| Task | Command |
 |---|---|
 | Build | `dotnet build` |
-| Executar testes | `dotnet test` |
-| Executar a API | `dotnet run --project src/ArchNet.Api` |
-| Formatar código | `dotnet format` |
-| Adicionar migration | `dotnet ef migrations add <Nome> -p src/ArchNet.Infrastructure -s src/ArchNet.Api` |
-| Atualizar banco | `dotnet ef database update -p src/ArchNet.Infrastructure -s src/ArchNet.Api` |
+| Run tests | `dotnet test` |
+| Run the API | `dotnet run --project src/ArchNet.Api` |
+| Format code | `dotnet format` |
+| Add migration | `dotnet ef migrations add <Name> -p src/ArchNet.Infrastructure -s src/ArchNet.Api` |
+| Update database | `dotnet ef database update -p src/ArchNet.Infrastructure -s src/ArchNet.Api` |
 
-## Testes
+## Testing
 
-- **Testes unitários** cobrem a lógica de domínio e os handlers CQRS de forma isolada.
-- **Testes de integração** sobem uma instância real do PostgreSQL via **Testcontainers** e exercitam o schema GraphQL completo.
+- **Unit tests** cover domain logic and CQRS handlers in isolation.
+- **Integration tests** spin up a real PostgreSQL instance via **Testcontainers** and exercise the full GraphQL schema.
 
 ```bash
-dotnet test                        # todos os testes
-dotnet test tests/UnitTests        # somente testes unitários
-dotnet test tests/IntegrationTests # somente testes de integração
+dotnet test                        # all tests
+dotnet test tests/UnitTests        # unit tests only
+dotnet test tests/IntegrationTests # integration tests only
 ```
