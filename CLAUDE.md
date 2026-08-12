@@ -1,7 +1,7 @@
 # CLAUDE.md - ArchNet
 
 ## Overview
-API GraphQL para gestão de usuários e recursos da plataforma QIATech, construída com Vertical Slice Architecture em .NET 10.
+API GraphQL para gestão de usuários e recursos da plataforma, construída com Vertical Slice Architecture em .NET 10.
 
 ## Tech Stack
 - .NET 10, ASP.NET Core
@@ -27,7 +27,7 @@ API GraphQL para gestão de usuários e recursos da plataforma QIATech, constru�
 - Run API: `dotnet run --project src/Api`
 - Add Migration: `dotnet ef migrations add <Name> -p src/Infrastructure -s src/Api`
 - Update Database: `dotnet ef database update -p src/Infrastructure -s src/Api`
-- Update Database on Windows: `dotnet ef database update --project "C:\Projetos\qiatech\arch_net\src\ArchNet.Infrastructure\ArchNet.Infrastructure.csproj" --startup-project "C:\Projetos\qiatech\arch_net\src\ArchNet.Api\ArchNet.Api.csproj"`
+- Update Database on Windows: `dotnet ef database update --project "src\ArchNet.Infrastructure\ArchNet.Infrastructure.csproj" --startup-project "src\ArchNet.Api\ArchNet.Api.csproj"`
 - Format: `dotnet format`
 
 ## Rules

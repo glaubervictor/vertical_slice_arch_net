@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-`ArchNet.Web` é o frontend Blazor **WebAssembly** (.NET 10) da plataforma QIATech. Consome a API GraphQL via Strawberry Shake v15 (cliente fortemente tipado, gerado em build time). UI construída com Blazor Blueprint (componentes shadcn/ui para Blazor).
+`ArchNet.Web` é o frontend Blazor **WebAssembly** (.NET 10) da plataforma. Consome a API GraphQL via Strawberry Shake v15 (cliente fortemente tipado, gerado em build time). UI construída com Blazor Blueprint (componentes shadcn/ui para Blazor).
 
 ## Stack
 

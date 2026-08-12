@@ -1,6 +1,6 @@
 # ArchNet
 
-GraphQL API for managing users and resources of the QIATech platform, built with **Vertical Slice Architecture** on **.NET 10**.
+GraphQL API for managing users and platform resources, built with **Vertical Slice Architecture** on **.NET 10**.
 
 ## Tech Stack
 
